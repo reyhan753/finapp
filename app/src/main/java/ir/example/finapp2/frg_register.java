@@ -1,11 +1,6 @@
 package ir.example.finapp2;
 
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +8,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -77,5 +75,95 @@ public class frg_register extends Fragment {
         return inflater.inflate(R.layout.frg_register, container, false);
     }
 
+    FirebaseDatabase db;
+    DatabaseReference ref;
 
+    EditText et_username,et_password,et_name;
+    TextView tv_back;
+    Button btn_register;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        btn_register=getActivity().findViewById(R.id.btn_register);
+        tv_back=getActivity().findViewById(R.id.tv_back);
+        et_username=getActivity().findViewById(R.id.et_user);
+        et_password=getActivity().findViewById(R.id.et_pass);
+        et_name=getActivity().findViewById(R.id.et_name);
+
+        db= FirebaseDatabase.getInstance();
+        ref = db.getReference("users");
+
+        tv_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragmentManager().beginTransaction().replace(R.id.frm_layout,new frg_login()).commit();
+            }
+        });
+
+          btn_register.setOnClickListener(new View.OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                  if(et_name.length()==0 || et_username.length()==0 || et_password.length()==0 )
+                  {
+                      Toast.makeText(getActivity(), "مشخصات خود وارد نمائید", Toast.LENGTH_SHORT).show();
+                      return;
+                  }
+                  register();
+              }
+          });
+
+        }
+
+    ArrayList<cs_user> arrayList;
+    boolean exist=false;
+
+    private void register()
+    {
+        exist=false;
+        arrayList=new ArrayList<>();
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot snap:snapshot.getChildren())
+                {
+                    cs_user user=snap.getValue(cs_user.class);
+                    if(user.username.equals(et_username.getText().toString()))
+                    {
+                        exist=true;
+                        return;
+                    }
+
+                }
+
+                if(exist==false) {
+                    final int min = 111111;
+                    final int max = 999999;
+                    final int id = new Random().nextInt((max - min) + 1) + min;
+
+                    cs_user mdl = new cs_user();
+                    mdl.setId(id);
+                    mdl.setUsername(et_username.getText().toString());
+                    mdl.setPassword(et_password.getText().toString());
+                    mdl.setName(et_name.getText().toString());
+
+                    ref.child(String.valueOf(id)).setValue(mdl);
+
+
+                    Toast.makeText(getActivity(), "حساب کاربری شما ایجاد گردید", Toast.LENGTH_SHORT).show();
+
+                    getFragmentManager().beginTransaction().replace(R.id.frm_layout, new frg_login()).commit();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+    }
 }

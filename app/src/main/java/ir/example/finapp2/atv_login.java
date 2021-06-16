@@ -1,12 +1,12 @@
 package ir.example.finapp2;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import io.github.inflationx.viewpump.ViewPumpContextWrapper;
 
@@ -21,6 +21,7 @@ public class atv_login extends AppCompatActivity {
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
         setContentView(R.layout.atv_login);
+        getSupportFragmentManager().beginTransaction().replace(R.id.frm_layout,new frg_login()).commit();
 
 
     }
